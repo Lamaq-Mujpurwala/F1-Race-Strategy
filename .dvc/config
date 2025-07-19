@@ -1,0 +1,4 @@
+[core]
+    remote = origin
+['remote "origin"']
+    url = https://dagshub.com/lamaqmuj5/F1-Race-Strategy.dvc
