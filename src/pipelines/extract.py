@@ -56,7 +56,7 @@ def fetch_races_data(start_year,end_year,output_path):
     os.makedirs(os.path.dirname(output_path),exist_ok=True)
     all_data.to_csv(output_path,index=False)
 
-    print(f"Data Fetched from {start_year} to {end_year} File Saved to {output_path}")
+    print(f"Data Fetched for all races from {start_year} to {end_year} File Saved to {output_path}")
 
 if __name__=="__main__":
     fetch_races_data(params['start_year'],params['end_year'],params['output_path'])

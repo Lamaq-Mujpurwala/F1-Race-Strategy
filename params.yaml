@@ -1,7 +1,7 @@
 # params.yaml - Configuration parameters for the pipeline
 
 extract:
-  start_year:2018
-  end_year:2024
+  start_year: 2018
+  end_year: 2024
   output_path: data/raw/all_laps.csv
 
