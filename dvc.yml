@@ -1,7 +1,6 @@
 # dvc.yaml - Defines the stages of our ETL pipeline
 
 stages:
-  # Stage 1: Fetch raw data from the source (e.g., FastF1)
   extract:
     cmd: python src/pipelines/extract.py
     deps:
