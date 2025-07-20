@@ -1,7 +1,7 @@
 # params.yaml - Configuration parameters for the pipeline
 
 extract:
-  year: 2023 # The season year to extract data for
+  start_year:2018
+  end_year:2024
+  output_path: data/raw/all_laps.csv
 
-transform:
-  min_lap_time: 90 # Example: Filter out laps slower than 90 seconds
