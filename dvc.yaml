@@ -8,4 +8,4 @@ stages:
       - extract.end_year
       - extract.output_path
     outs:
-      - data/raw/all_laps.csv
+      - data/raw/
