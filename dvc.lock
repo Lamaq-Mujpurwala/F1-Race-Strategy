@@ -15,6 +15,54 @@ stages:
     outs:
     - path: data/raw/
       hash: md5
-      md5: ea33fa08bbb3036abf7595b2887f9128.dir
-      size: 15797630
+      md5: b1ad1d1a96f47c36a19179074bc9cedf.dir
+      size: 15342214
       nfiles: 8
+  combine:
+    cmd: python src/pipelines/combine.py
+    deps:
+    - path: data/raw/
+      hash: md5
+      md5: b1ad1d1a96f47c36a19179074bc9cedf.dir
+      size: 15342214
+      nfiles: 8
+    - path: src/pipelines/combine.py
+      hash: md5
+      md5: 48ca6bcfc9fb91045c6730b36d9cd584
+      size: 2009
+    params:
+      params.yaml:
+        combine.end_year: 2025
+        combine.file_name: all_laps.csv
+        combine.input_path: data/raw
+        combine.output_path: data/combined
+        combine.start_year: 2019
+    outs:
+    - path: data/combined/
+      hash: md5
+      md5: a1347a538ab28304df1c03bab92f4407.dir
+      size: 13304094
+      nfiles: 1
+  transform:
+    cmd: python src/pipelines/transform.py
+    deps:
+    - path: data/combined/
+      hash: md5
+      md5: a1347a538ab28304df1c03bab92f4407.dir
+      size: 13304094
+      nfiles: 1
+    - path: src/pipelines/transform.py
+      hash: md5
+      md5: 8329ac3f7640b2da5f6a806317a6d681
+      size: 3796
+    params:
+      params.yaml:
+        transform.input_path: data/combined/all_laps.csv
+        transform.outlier_lap_time_percentage: 1.08
+        transform.output_path: data/processed/processed_data.csv
+    outs:
+    - path: data/processed/
+      hash: md5
+      md5: e08d1403332f076fb764a592bbd40aff.dir
+      size: 6309498
+      nfiles: 1
