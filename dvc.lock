@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/pipelines/extract.py
       hash: md5
-      md5: 8046598a7e6ae49af62dec481fad5bca
-      size: 5967
+      md5: 156283d6f082cb233bacecedb4d1c876
+      size: 5961
     params:
       params.yaml:
         extract.end_year: 2024
@@ -15,6 +15,6 @@ stages:
     outs:
     - path: data/raw/
       hash: md5
-      md5: 8b3a3fcc4066a8b351f8ae52cd6569c9.dir
-      size: 3214422
-      nfiles: 2
+      md5: ea33fa08bbb3036abf7595b2887f9128.dir
+      size: 15797630
+      nfiles: 8
