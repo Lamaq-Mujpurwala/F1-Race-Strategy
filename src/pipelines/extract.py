@@ -125,12 +125,12 @@ if __name__=="__main__":
     params = yaml.safe_load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "params.yaml")))['extract']
     races_in_year = [
         {"year": 2018 ,"races": 21},
-        #{"year": 2019 ,"races": 21},
-        #{"year": 2020 ,"races": 17},
-        #{"year": 2021 ,"races": 22},
-        #{"year": 2022 ,"races": 22},
-        #{"year": 2023 ,"races": 23},
-        #{"year": 2024 ,"races": 24},
+        {"year": 2019 ,"races": 21},
+        {"year": 2020 ,"races": 17},
+        {"year": 2021 ,"races": 22},
+        {"year": 2022 ,"races": 22},
+        {"year": 2023 ,"races": 23},
+        {"year": 2024 ,"races": 24},
     ]
     raw_folder = params['output_path'] if 'output_path' in params else 'data/raw/'
     state_file = params.get('state_file', 'processed_races.json')
