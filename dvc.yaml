@@ -2,10 +2,37 @@ stages:
   extract:
     cmd: python src/pipelines/extract.py
     deps:
-      - src/pipelines/extract.py
+    - src/pipelines/extract.py
     params:
-      - extract.start_year
-      - extract.end_year
-      - extract.output_path
+    - extract.end_year
+    - extract.output_path
+    - extract.start_year
     outs:
-      - data/raw/
+    - data/raw/:
+        persist: true
+  combine:
+    cmd: python src/pipelines/combine.py
+    deps:
+    - data/raw/
+    - src/pipelines/combine.py
+    params:
+    - combine.end_year
+    - combine.file_name
+    - combine.input_path
+    - combine.output_path
+    - combine.start_year
+    outs:
+    - data/combined/:
+        persist: true
+  transform:
+    cmd: python src/pipelines/transform.py
+    deps:
+    - data/combined/
+    - src/pipelines/transform.py
+    params:
+    - transform.input_path
+    - transform.outlier_lap_time_percentage
+    - transform.output_path
+    outs:
+    - data/processed/:
+        persist: true

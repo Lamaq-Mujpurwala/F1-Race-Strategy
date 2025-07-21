@@ -6,3 +6,15 @@ extract:
   output_path: data/raw/
   state_file: processed_races.json
 
+combine:
+  input_path: data/raw
+  output_path: data/combined
+  file_name: all_laps.csv
+  start_year: 2019
+  end_year: 2025
+
+transform:
+  input_path: data/combined/all_laps.csv
+  output_path: data/processed/processed_data.csv
+  outlier_lap_time_percentage: 1.08
+

@@ -129,7 +129,7 @@ if __name__=="__main__":
         {"year": 2020 ,"races": 17},
         {"year": 2021 ,"races": 22},
         {"year": 2022 ,"races": 22},
-        {"year": 2023 ,"races": 23},
+        {"year": 2023 ,"races": 22},
         {"year": 2024 ,"races": 24},
     ]
     raw_folder = params['output_path'] if 'output_path' in params else 'data/raw/'
