@@ -1,0 +1,48 @@
+# .env - Local Environment Secrets & Configuration
+# This file is NOT committed to Git.
+
+# --- Airflow Configuration ---
+
+# Tells Airflow's database connection where to find the Postgres container.
+# The format is: dialect+driver://user:password@host:port/database
+# 'postgres' is the hostname of our Postgres service inside the Docker network.
+AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+
+# Sets the executor. LocalExecutor runs tasks in parallel on the same machine.
+# It's perfect for local development.
+AIRFLOW__CORE__EXECUTOR=LocalExecutor
+
+# Disables loading the example DAGs to keep our UI clean.
+AIRFLOW__CORE__LOAD_EXAMPLES=False
+
+# --- Airflow User ID ---
+# This matches the user ID inside the container to your host user, preventing
+# file permission errors when Airflow writes logs to mounted volumes.
+# 50000 is a safe default if you don't know your user ID.
+AIRFLOW_UID=50000
+
+# For Airflow 3.0+
+# A secret key used by the Airflow webserver to sign user session cookies.
+# For production, this should be a long, random, and securely generated string.
+AIRFLOW__API__SECRET_KEY=your_super_secret_and_random_key_here_12345!
+
+# admin user automatically on the first run.
+_AIRFLOW_WWW_USER_USERNAME=admin
+_AIRFLOW_WWW_USER_PASSWORD=admin
+
+# --- Airflow Application Connection ---
+# [NO CHANGE NEEDED]
+AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql://airflow:airflow@postgres:5432/airflow
+
+# --- MLflow Configuration (Pointing to DagsHub) ---
+# [ACTION REQUIRED] - Copy these values from your DagsHub repository's "Remote" button.
+
+# The remote tracking server provided by DagsHub.
+MLFLOW_TRACKING_URI=your_remote_uri
+
+# Your DagsHub username.
+MLFLOW_TRACKING_USERNAME=your_username
+
+# A DagsHub access token.
+MLFLOW_TRACKING_PASSWORD=your_access_token
+
