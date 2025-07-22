@@ -19,10 +19,10 @@ def clean_data(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
     print(f"Dropped {original_rows - len(df_cleaned)} rows for non-dry compounds.")
 
     original_rows = len(df_cleaned)
-    race_median_times = df_cleaned.groupby(['Year', 'Track'])['LapTimeinSeconds'].transform('median')
-    outlier_threshold = params.get('outlier_lap_time_percentage', 1.08)
-    df_cleaned = df_cleaned[df_cleaned['LapTimeinSeconds'] < (race_median_times * outlier_threshold)]
-    print(f"Dropped {original_rows - len(df_cleaned)} outlier laps.")
+    #race_median_times = df_cleaned.groupby(['Year', 'Track'])['LapTimeinSeconds'].transform('median')
+    #utlier_threshold = params.get('outlier_lap_time_percentage', 2.0)
+    #df_cleaned = df_cleaned[df_cleaned['LapTimeinSeconds'] < (race_median_times * outlier_threshold)]
+    #print(f"Dropped {original_rows - len(df_cleaned)} outlier laps.")
     
     print("--- Data Cleaning Complete ---")
     return df_cleaned
