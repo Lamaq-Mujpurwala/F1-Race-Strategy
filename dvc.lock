@@ -53,16 +53,16 @@ stages:
       nfiles: 1
     - path: src/pipelines/transform.py
       hash: md5
-      md5: 8329ac3f7640b2da5f6a806317a6d681
-      size: 3796
+      md5: e6c4adaec59903d44e78e0d9053ea444
+      size: 3798
     params:
       params.yaml:
         transform.input_path: data/combined/all_laps.csv
-        transform.outlier_lap_time_percentage: 1.08
+        transform.outlier_lap_time_percentage: 1.0
         transform.output_path: data/processed/processed_data.csv
     outs:
     - path: data/processed/
       hash: md5
-      md5: e08d1403332f076fb764a592bbd40aff.dir
-      size: 6309498
+      md5: bf1e6752d3f18a4c769400148a017aaa.dir
+      size: 6971127
       nfiles: 1
