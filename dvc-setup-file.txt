@@ -1,0 +1,16 @@
+1. Go to your airflow docker container
+2. Open your bash terminal
+3. pip install -r requirements.txt
+3. initialize git and dvc
+4. 
+# 1. Initialize DVC if not already
+dvc init --no-scm
+
+# 2. Add DagsHub remote
+dvc remote add -d origin https://dagshub.com/<user>/<repo>.dvc
+dvc remote modify origin auth basic
+dvc remote modify origin user <your-username>
+dvc remote modify origin password <your-dagshub-token>
+
+# 3. Pull data
+dvc pull

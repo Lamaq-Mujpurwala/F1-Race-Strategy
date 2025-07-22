@@ -33,11 +33,15 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/opt/airflow
     volumes:
       - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
       - ./plugins:/opt/airflow/plugins
       - ./airflow_logs:/opt/airflow/logs
       - ./requirements.txt:/opt/airflow/requirements.txt
+      - ./params.yaml:/opt/airflow/params.yaml
     ports:
       - "8080:8080"
     command: standalone
@@ -51,4 +55,3 @@ services:
 volumes:
   postgres_data:
   airflow_logs:
-
