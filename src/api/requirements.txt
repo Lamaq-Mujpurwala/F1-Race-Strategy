@@ -1,0 +1,7 @@
+flask
+mlflow==2.22.0
+scikit-learn
+pandas
+xgboost
+dill
+requests
