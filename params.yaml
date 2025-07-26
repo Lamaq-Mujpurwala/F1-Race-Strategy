@@ -16,5 +16,47 @@ combine:
 transform:
   input_path: data/combined/all_laps.csv
   output_path: data/processed/processed_data.csv
-  outlier_lap_time_percentage: 1.08
+  outlier_lap_time_percentage: 1.0
 
+# --- NEW SECTION FOR PIT STOP PIPELINE ---
+transform_pitstops:
+  input_path: data/combined/all_laps.csv
+  output_path: data/processed/pit_stop_data.csv
+  min_pit_delta: 35.0 # Filter out unrealistic pit stops (e.g., drive-throughs)
+
+base:
+  target_variable: laptimeinseconds
+  test_size: 0.2
+  random_state: 42
+
+features:
+  categorical:
+    - compound
+    - track
+    - year
+    - driver
+  numerical:
+    - tyrelife
+    - lapnumber
+    - airtemp
+    - tracktemp
+
+models:
+  ridge:
+    alpha: 1.0
+    random_state: 42
+
+  random_forest:
+    n_estimators: 150
+    max_depth: 12
+    min_samples_leaf: 5
+    random_state: 42
+
+  xgboost:
+    n_estimators: 1000
+    learning_rate: 0.05
+    max_depth: 6
+    subsample: 0.8
+    colsample_bytree: 0.8
+    early_stopping_rounds: 50
+    random_state: 42

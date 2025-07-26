@@ -76,7 +76,7 @@ def fetch_new_races_current_year(year, output_path, state_file='processed_races.
             if laps is None or len(laps) == 0:
                 print(f"No data for race {race+1} in {year}. Stopping.")
                 break
-            laps = laps[['Time','Driver','LapNumber','Compound','Stint', 'TyreLife', 'FreshTyre','LapTime']]
+            laps = laps[['Time','Driver','LapNumber','Compound','Stint', 'TyreLife', 'FreshTyre','LapTime','PitInTime','PitOutTime']]
             laps['LapTimeinSeconds'] = laps['LapTime'].dt.total_seconds()
             laps.drop(['LapTime'], axis=1, inplace=True)
             laps['Track'] = session.event.Country
