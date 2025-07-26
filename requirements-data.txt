@@ -1,0 +1,7 @@
+# requirements-data.txt
+# Dependencies needed to run the DVC data pipeline in CI/CD
+pandas
+numpy
+pyyaml
+fastf1
+dvc[s3]
