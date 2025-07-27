@@ -5,15 +5,16 @@ import yaml
 # --- Configuration ---
 PARAMS_FILE = "params.yaml"
 MLFLOW_MODEL_NAME = "tire_degradation_model_v1"
-PROMOTION_ALIAS = "production"
+# We define the STAGE we want to transition to, which DagsHub will map to an ALIAS
+PROMOTION_STAGE = "Production" 
 PRIMARY_METRIC = "metrics.mae" 
 COMPARISON_METRICS = ["metrics.mae", "metrics.r2_score"]
 
 def promote_best_model():
     """
-    Compares the newly trained models against the current production model.
-    If a new model is better, it is registered and promoted by setting its
-    alias to 'production'.
+    Compares newly trained models against the current production model.
+    If a new model is better, it is registered and then promoted by
+    transitioning its stage to 'Production', which sets the 'production' alias on DagsHub.
     """
     print("--- Starting Automated Model Promotion ---")
     
@@ -39,16 +40,21 @@ def promote_best_model():
     print(f"  - New Model MAE: {best_new_metrics['metrics.mae']:.4f}")
     print(f"  - New Model R2 Score: {best_new_metrics['metrics.r2_score']:.4f}")
 
-    # 2. Get the current production model's metrics
+    # 2. Get the current production model's metrics using the 'stages' parameter
     try:
-        prod_model_version = client.get_model_version_by_alias(name=MLFLOW_MODEL_NAME, alias=PROMOTION_ALIAS)
-        prod_run_id = prod_model_version.run_id
-        prod_run = client.get_run(prod_run_id)
-        prod_metrics = prod_run.data.metrics
-        
-        print(f"Found current production model: Version {prod_model_version.version}, Run ID: {prod_run_id}")
-        print(f"  - Production MAE: {prod_metrics.get('mae', float('inf')):.4f}")
-        print(f"  - Production R2 Score: {prod_metrics.get('r2_score', float('-inf')):.4f}")
+        # This is the compatible way to find the current production model
+        prod_versions = client.get_latest_versions(name=MLFLOW_MODEL_NAME, stages=[PROMOTION_STAGE])
+        if prod_versions:
+            prod_model_version = prod_versions[0]
+            prod_run_id = prod_model_version.run_id
+            prod_run = client.get_run(prod_run_id)
+            prod_metrics = prod_run.data.metrics
+            
+            print(f"Found current production model: Version {prod_model_version.version}, Run ID: {prod_run_id}")
+            print(f"  - Production MAE: {prod_metrics.get('mae', float('inf')):.4f}")
+            print(f"  - Production R2 Score: {prod_metrics.get('r2_score', float('-inf')):.4f}")
+        else:
+            raise Exception("No versions found in Production stage.")
 
     except Exception as e:
         print(f"No existing production model found. The new model will be promoted automatically. Error: {e}")
@@ -64,25 +70,29 @@ def promote_best_model():
         print("\nNew model is better than the current production model. Promoting...")
         
         # --- THE FIX ---
-        # 4. Register the model from the best run's artifact URI
-        # This creates a new version in the registry.
+        # 4. Register the model from the best run's artifact URI using a low-level client call.
         model_uri = f"runs:/{best_new_run_id}/model"
-        print(f"Registering model from URI: {model_uri}")
+        print(f"Registering new model version from URI: {model_uri}")
         
-        registered_version = mlflow.register_model(
-            model_uri=model_uri,
-            name=MLFLOW_MODEL_NAME
-        )
-        new_model_version = registered_version.version
-        print(f"Model successfully registered as Version {new_model_version}.")
-
-        # 5. Set the 'production' alias for the newly created version
-        client.set_registered_model_alias(
+        # This creates a new version of the model.
+        new_version = client.create_model_version(
             name=MLFLOW_MODEL_NAME,
-            alias=PROMOTION_ALIAS,
-            version=new_model_version
+            source=model_uri,
+            run_id=best_new_run_id
         )
-        print(f"Successfully promoted Version {new_model_version} to '{PROMOTION_ALIAS}'.")
+        print(f"Model successfully registered as Version {new_version.version}.")
+
+        # 5. Transition the new version to the 'Production' stage.
+        # This is the compatible API call that DagsHub supports, and it will
+        # result in the 'production' alias being set in the UI.
+        print(f"Transitioning Version {new_version.version} to stage '{PROMOTION_STAGE}'...")
+        client.transition_model_version_stage(
+            name=MLFLOW_MODEL_NAME,
+            version=new_version.version,
+            stage=PROMOTION_STAGE,
+            archive_existing_versions=True # This moves the old production model to 'Archived'
+        )
+        print(f"Successfully promoted Version {new_version.version} to '{PROMOTION_STAGE}'.")
 
     else:
         print("\nNew model is not better than the current production model. No promotion will occur.")
