@@ -1,6 +1,6 @@
 # F1 Race Strategy Optimizer 🏎️
 
-#Streamlit App - https://f1-race-strategy-nwqyq2z2dzwc5qdzwwtttw.streamlit.app/
+Streamlit App - https://f1-race-strategy-nwqyq2z2dzwc5qdzwwtttw.streamlit.app/
 
 This project aims to predict the optimal race strategy for a Formula 1 race by modeling tire degradation. The system uses historical race data to train an XGBoost model, which is then served via an API. A full CI/CD pipeline automates the weekly retraining and deployment process.
 
