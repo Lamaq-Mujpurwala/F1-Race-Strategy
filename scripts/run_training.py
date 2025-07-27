@@ -4,9 +4,6 @@ import os
 import mlflow
 
 # Import the main training function from our source code.
-# We need to add src to the path for the import to work when run from the root.
-import sys
-sys.path.append('src')
 from model.train import train_model
 
 # --- Configuration ---
@@ -31,7 +28,13 @@ def run_full_training():
     print(f"Loading data from {PROCESSED_DATA_PATH}...")
     data = pd.read_csv(PROCESSED_DATA_PATH)
 
-    # 2. Loop through and train each model
+    # --- THE FIX ---
+    # 2. Standardize column names to lowercase to match params.yaml
+    # This makes the pipeline robust to the casing of the input CSV.
+    data.columns = [col.lower() for col in data.columns]
+    print("Standardized DataFrame columns to lowercase.")
+
+    # 3. Loop through and train each model
     for model_name in MODELS_TO_TRAIN:
         print(f"\n--- Triggering training for: {model_name} ---")
         try:
