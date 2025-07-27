@@ -6,7 +6,8 @@ dist/
 wheels/
 *.egg-info
 
+#environment secrets
+.env
+
 # Virtual environments
 .venv
-
-# Data Version Control
