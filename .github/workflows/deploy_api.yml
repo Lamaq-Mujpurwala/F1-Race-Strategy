@@ -1,0 +1,53 @@
+# .github/workflows/deploy_api.yml
+# This workflow automates model promotion and deploys the API.
+
+name: "Automated Model Promotion and Deploy"
+
+on:
+  # This triggers the workflow automatically after the "Automated Model Training"
+  # workflow completes successfully.
+  workflow_run:
+    workflows: ["Automated Model Training"]
+    types:
+      - completed
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  promote-and-deploy:
+    # This condition ensures the job only runs if the training pipeline was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        # We only need mlflow and pyyaml to run the promotion script
+        run: pip install mlflow pyyaml
+
+      - name: Promote Best Model
+        env:
+          PYTHONPATH: src
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+           python scripts/promote_model.py
+
+      - name: Trigger Hugging Face Space Restart
+        # This step makes a secure API call to Hugging Face to restart the Space,
+        # which forces it to pull the newly promoted production model.
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_ID: ${{ secrets.HF_SPACE_ID }} # e.g., lamaqmuj5/f1-strategy-simulator
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $HF_TOKEN" \
+            "https://huggingface.co/api/spaces/$HF_SPACE_ID/restart"
