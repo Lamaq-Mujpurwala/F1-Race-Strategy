@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/pipelines/extract.py
       hash: md5
-      md5: 30a13b60f39a27f1305b6d5880726b20
-      size: 5986
+      md5: d42f05d8166f03e73465368a77c1e2b6
+      size: 5840
     params:
       params.yaml:
         extract.end_year: 2024
@@ -15,21 +15,21 @@ stages:
     outs:
     - path: data/raw/
       hash: md5
-      md5: c2ad944d21a1fdf76dd54dae73ae7a58.dir
-      size: 16585200
-      nfiles: 8
+      md5: 601db97f975c9521c7773a643e64ccc0.dir
+      size: 14617842
+      nfiles: 7
   combine:
     cmd: python src/pipelines/combine.py
     deps:
     - path: data/raw/
       hash: md5
-      md5: c2ad944d21a1fdf76dd54dae73ae7a58.dir
-      size: 16585200
-      nfiles: 8
+      md5: 601db97f975c9521c7773a643e64ccc0.dir
+      size: 14617842
+      nfiles: 7
     - path: src/pipelines/combine.py
       hash: md5
-      md5: 48ca6bcfc9fb91045c6730b36d9cd584
-      size: 2009
+      md5: 172a7e7aeffe37548507c801fd70ff22
+      size: 1954
     params:
       params.yaml:
         combine.end_year: 2025
@@ -40,21 +40,21 @@ stages:
     outs:
     - path: data/combined/
       hash: md5
-      md5: a68cc5dd4fc62433ba85c5737ff8e782.dir
-      size: 14827862
+      md5: 3224505beedbd825de6494d9d369d92f.dir
+      size: 12440780
       nfiles: 1
   transform:
     cmd: python src/pipelines/transform.py
     deps:
     - path: data/combined/
       hash: md5
-      md5: a68cc5dd4fc62433ba85c5737ff8e782.dir
-      size: 14827862
+      md5: 3224505beedbd825de6494d9d369d92f.dir
+      size: 12440780
       nfiles: 1
     - path: src/pipelines/transform.py
       hash: md5
-      md5: e6c4adaec59903d44e78e0d9053ea444
-      size: 3798
+      md5: c890ff239fcccf16aefd04c3cd4eb79e
+      size: 3694
     params:
       params.yaml:
         transform.input_path: data/combined/all_laps.csv
@@ -63,8 +63,8 @@ stages:
     outs:
     - path: data/processed/processed_data.csv
       hash: md5
-      md5: 08096a1cfbb63bce2e4e462cf648aef5
-      size: 7537696
+      md5: 105b1437c07a0f9dc1dc442405127d39
+      size: 6489742
   transform_pitstops:
     cmd: python src/pipelines/transform_pitstops.py
     deps:
