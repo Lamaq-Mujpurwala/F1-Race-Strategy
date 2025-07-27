@@ -10,3 +10,6 @@ scikit-learn
 mlflow
 fastf1
 xgboost
+langchain
+langchain_groq
+langchain_community
