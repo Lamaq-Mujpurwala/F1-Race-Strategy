@@ -1,4 +1,4 @@
-# This workflow automates the DVC data pipeline.
+# This workflow automates the DVC data pipeline efficiently for incremental updates.
 name: "Automated Data Pipeline"
 
 on:
@@ -26,29 +26,45 @@ jobs:
         run: pip install -r requirements-data.txt
 
       - name: Configure DagsHub DVC Remote
-        # This step uses secrets stored in your GitHub repository
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          # The DVC remote URL is read from the existing .dvc/config file
-          # We only need to configure the credentials
           dvc remote modify origin --local auth basic
           dvc remote modify origin --local user ${{ secrets.DAGSHUB_USERNAME }}
           dvc remote modify origin --local password $DAGSHUB_TOKEN
       
-      - name: Run DVC Pipeline
+      - name: Pull Existing Data from DVC Remote
         run: |
-          # This command executes all stages in dvc.yaml
+          # This synchronizes the workspace with the last successful run
+          dvc pull
+
+      # --- THE FIX ---
+      - name: Prepare for Incremental Update
+        run: |
+          # Dynamically get the current year (e.g., 2025)
+          CURRENT_YEAR=$(date +'%Y')
+          FILE_TO_DELETE="data/raw/laps_${CURRENT_YEAR}.csv"
+          
+          echo "Preparing for new data fetch for year ${CURRENT_YEAR}."
+          echo "Checking for and removing old file: ${FILE_TO_DELETE}"
+          
+          # Remove the current year's raw data file if it exists.
+          # This forces the 'extract' stage of 'dvc repro' to run again for the current year.
+          # The '-f' flag ensures the command doesn't fail if the file doesn't exist.
+          rm -f $FILE_TO_DELETE
+
+      - name: Run DVC Pipeline to Process New Data
+        run: |
+          # DVC will now see that the input for the 'extract' stage is missing/changed
+          # and will re-run it and all downstream stages (combine, transform).
           dvc repro
 
-      - name: Push Data to DVC Remote
+      - name: Push New Data to DVC Remote
         run: |
-          # This pushes the new/changed data artifacts to DagsHub
+          # This pushes only the new/changed data artifacts to DagsHub
           dvc push -r origin
 
       - name: Commit and Push DVC Lock File
-        # This is a crucial step. After 'dvc repro', the dvc.lock file is updated.
-        # We must commit this file back to Git to keep our project state consistent.
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
