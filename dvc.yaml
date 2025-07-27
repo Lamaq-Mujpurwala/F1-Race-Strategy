@@ -37,16 +37,18 @@ stages:
     - data/processed/processed_data.csv:
         persist: true
 
+
   # --- NEW STAGE FOR PIT STOP PIPELINE ---
-  transform_pitstops:
-    cmd: python src/pipelines/transform_pitstops.py
-    deps:
-      - data/combined/all_laps.csv
-      - src/pipelines/transform_pitstops.py
-    params:
-      - transform_pitstops.input_path
-      - transform_pitstops.output_path
-      - transform_pitstops.min_pit_delta
-    outs:
-      - data/processed/pit_stop_data.csv:
-          persist: true
+  # ---CURRENTLY NOT IN USE, FOR FUTURE WORK---
+  #transform_pitstops:
+  #  cmd: python src/pipelines/transform_pitstops.py
+  #  deps:
+  #    - data/combined/all_laps.csv
+  #    - src/pipelines/transform_pitstops.py
+  #  params:
+  #    - transform_pitstops.input_path
+  #    - transform_pitstops.output_path
+  #    - transform_pitstops.min_pit_delta
+  #  outs:
+  #    - data/processed/pit_stop_data.csv:
+  #        persist: true
