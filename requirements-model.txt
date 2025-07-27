@@ -1,0 +1,6 @@
+pandas
+pyyaml
+scikit-learn
+xgboost
+mlflow
+dvc[s3]
