@@ -48,8 +48,9 @@ jobs:
         # This step runs our wrapper script, which in turn calls train.py
         # It requires the MLflow credentials to be set as environment variables.
         env:
+          PYTHONPATH: src
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          PYTHONPATH=src python scripts/run_training.py
+         python scripts/run_training.py

@@ -5,9 +5,9 @@ from sklearn.model_selection import train_test_split
 import joblib
 
 # Import our custom modules
-from src.model.preprocessing import create_preprocessor, fit_and_save_preprocessor
-from src.model.models import MODEL_GETTERS
-from src.model.evaluate import get_regression_metrics
+from model.preprocessing import create_preprocessor, fit_and_save_preprocessor
+from model.models import MODEL_GETTERS
+from model.evaluate import get_regression_metrics
 
 # --- Configuration ---
 PARAMS_FILE = "params.yaml" # This should be accessible in the Airflow environment
