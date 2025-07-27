@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/pipelines/extract.py
       hash: md5
-      md5: 156283d6f082cb233bacecedb4d1c876
-      size: 5961
+      md5: 30a13b60f39a27f1305b6d5880726b20
+      size: 5986
     params:
       params.yaml:
         extract.end_year: 2024
@@ -15,16 +15,16 @@ stages:
     outs:
     - path: data/raw/
       hash: md5
-      md5: b1ad1d1a96f47c36a19179074bc9cedf.dir
-      size: 15342214
+      md5: c2ad944d21a1fdf76dd54dae73ae7a58.dir
+      size: 16585200
       nfiles: 8
   combine:
     cmd: python src/pipelines/combine.py
     deps:
     - path: data/raw/
       hash: md5
-      md5: b1ad1d1a96f47c36a19179074bc9cedf.dir
-      size: 15342214
+      md5: c2ad944d21a1fdf76dd54dae73ae7a58.dir
+      size: 16585200
       nfiles: 8
     - path: src/pipelines/combine.py
       hash: md5
@@ -40,16 +40,16 @@ stages:
     outs:
     - path: data/combined/
       hash: md5
-      md5: a1347a538ab28304df1c03bab92f4407.dir
-      size: 13304094
+      md5: a68cc5dd4fc62433ba85c5737ff8e782.dir
+      size: 14827862
       nfiles: 1
   transform:
     cmd: python src/pipelines/transform.py
     deps:
     - path: data/combined/
       hash: md5
-      md5: a1347a538ab28304df1c03bab92f4407.dir
-      size: 13304094
+      md5: a68cc5dd4fc62433ba85c5737ff8e782.dir
+      size: 14827862
       nfiles: 1
     - path: src/pipelines/transform.py
       hash: md5
@@ -61,8 +61,28 @@ stages:
         transform.outlier_lap_time_percentage: 1.0
         transform.output_path: data/processed/processed_data.csv
     outs:
-    - path: data/processed/
+    - path: data/processed/processed_data.csv
       hash: md5
-      md5: bf1e6752d3f18a4c769400148a017aaa.dir
-      size: 6971127
-      nfiles: 1
+      md5: 08096a1cfbb63bce2e4e462cf648aef5
+      size: 7537696
+  transform_pitstops:
+    cmd: python src/pipelines/transform_pitstops.py
+    deps:
+    - path: data/combined/all_laps.csv
+      hash: md5
+      md5: 6258da406691b0a131b5a700082e303a
+      size: 14827862
+    - path: src/pipelines/transform_pitstops.py
+      hash: md5
+      md5: 9979c03442ddf2ea101362f1237525b8
+      size: 2750
+    params:
+      params.yaml:
+        transform_pitstops.input_path: data/combined/all_laps.csv
+        transform_pitstops.min_pit_delta: 35.0
+        transform_pitstops.output_path: data/processed/pit_stop_data.csv
+    outs:
+    - path: data/processed/pit_stop_data.csv
+      hash: md5
+      md5: 40a8fc74dce842ad179fa43b9f3e7d71
+      size: 28
