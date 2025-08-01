@@ -145,25 +145,29 @@ def process_chat(user_message: str):
                 updated_history = response_data.get("updated_history", [])
 
                 if is_voice_mode:
-                    st.session_state.voice_messages = updated_history
-                    # Generate audio for the new response if in voice mode
-                    if st.session_state.elevenlabs_api_key:
+                    # Create a copy of the updated history to modify
+                    modified_history = list(updated_history)
+                    # Add audio data to the last message (AI response)
+                    if st.session_state.elevenlabs_api_key and modified_history:
                         with st.spinner("Generating audio response..."):
                             try:
                                 el_client = ElevenLabs(api_key=st.session_state.elevenlabs_api_key)
                                 audio_stream = el_client.text_to_speech.convert(
-                                    voice_id=st.session_state.elevenlabs_voice_id, output_format="mp3_44100_128",
-                                    text=ai_response_text, model_id="eleven_multilingual_v2",
+                                    voice_id=st.session_state.elevenlabs_voice_id, 
+                                    output_format="mp3_44100_128",
+                                    text=ai_response_text, 
+                                    model_id="eleven_multilingual_v2",
                                 )
                                 audio_data = b"".join(audio_stream)
                                 audio_b64 = base64.b64encode(audio_data).decode("utf-8")
-                                # Add the generated audio to the last message in the history
-                                if st.session_state.voice_messages:
-                                    st.session_state.voice_messages[-1]['audio_b64'] = audio_b64
+                                # Add audio to the last message
+                                modified_history[-1]['audio_b64'] = audio_b64
                                 # Set the audio to be played automatically
                                 st.session_state.autoplay_audio_b64 = audio_b64
                             except Exception as e:
                                 st.error(f"ElevenLabs audio generation failed: {e}")
+                    # Update session state with modified history
+                    st.session_state.voice_messages = modified_history
                 else:
                     st.session_state.text_messages = updated_history
 
