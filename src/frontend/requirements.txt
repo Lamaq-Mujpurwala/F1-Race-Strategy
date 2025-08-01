@@ -1,0 +1,7 @@
+streamlit
+requests
+pandas
+pyyaml
+streamlit-mic-recorder
+elevenlabs
+groq
