@@ -89,12 +89,16 @@ def process_chat(user_message: str):
     then updates the local session state with the new history from the backend.
     """
     is_voice_mode = st.session_state.current_mode == "Voice"
-    current_messages = st.session_state.voice_messages if is_voice_mode else st.session_state.text_messages
     
+    # Use the correct message list based on the current mode
+    if is_voice_mode:
+        current_messages = st.session_state.voice_messages
+    else:
+        current_messages = st.session_state.text_messages
+
     # Add user message to the local state for immediate UI update
     current_messages.append({"role": "user", "content": user_message})
 
-# ============================ THE FIX IS HERE ============================
     # This block now includes ALL context variables required by the backend's
     # prompt template. This prevents the backend from throwing an error.
     context_updates = {
@@ -117,10 +121,8 @@ def process_chat(user_message: str):
         "average_lap_time": st.session_state.sim_avg_lap,
         "worst_lap_time": st.session_state.sim_worst_lap
     }
-    # ========================== END OF FIX ===========================
 
-
-    # 2. Create the payload, including the chat history up to the user's last message
+    # Create the payload, including the chat history up to the user's last message
     api_payload = {
         "message": user_message,
         "context_updates": context_updates,
@@ -128,11 +130,13 @@ def process_chat(user_message: str):
         "chat_history": current_messages[:-1] # Send history *before* the latest user message
     }
 
-    # 3. Set up headers for the API key
     headers = {
         "Authorization": f"Bearer {st.session_state.groq_api_key}",
         "Content-Type": "application/json"
     }
+
+    # Placeholder for the AI response text
+    ai_response_text = "Sorry, I had an issue processing your request."
 
     with st.spinner("Mach is thinking..."):
         try:
@@ -141,46 +145,55 @@ def process_chat(user_message: str):
 
             if response.status_code == 200:
                 response_data = response.json()
-                ai_response_text = response_data.get("response", "Sorry, I had an issue.")
+                # Get the definitive text response and history from the backend
+                ai_response_text = response_data.get("response", ai_response_text)
                 updated_history = response_data.get("updated_history", [])
 
+                # Set the session state with the complete, correct history from the backend
                 if is_voice_mode:
-                    # Create a copy of the updated history to modify
-                    modified_history = list(updated_history)
-                    # Add audio data to the last message (AI response)
-                    if st.session_state.elevenlabs_api_key and modified_history:
-                        with st.spinner("Generating audio response..."):
-                            try:
-                                el_client = ElevenLabs(api_key=st.session_state.elevenlabs_api_key)
-                                audio_stream = el_client.text_to_speech.convert(
-                                    voice_id=st.session_state.elevenlabs_voice_id, 
-                                    output_format="mp3_44100_128",
-                                    text=ai_response_text, 
-                                    model_id="eleven_multilingual_v2",
-                                )
-                                audio_data = b"".join(audio_stream)
-                                audio_b64 = base64.b64encode(audio_data).decode("utf-8")
-                                # Add audio to the last message
-                                modified_history[-1]['audio_b64'] = audio_b64
-                                # Set the audio to be played automatically
-                                st.session_state.autoplay_audio_b64 = audio_b64
-                            except Exception as e:
-                                st.error(f"ElevenLabs audio generation failed: {e}")
-                    # Update session state with modified history
-                    st.session_state.voice_messages = modified_history
+                    st.session_state.voice_messages = updated_history
                 else:
                     st.session_state.text_messages = updated_history
-
+            
             else:
                 error_info = response.json()
                 st.error(f"Backend Error ({response.status_code}): {error_info.get('error', 'Unknown error')}")
                 current_messages.pop() # Remove the user's message if the call failed
+                st.rerun() # Rerun to reflect the popped message
+                return # Stop further processing
 
         except requests.RequestException as e:
             st.error(f"Connection Error: Could not reach the backend. Details: {e}")
             current_messages.pop()
+            st.rerun()
+            return
 
+    # === Audio Generation (only if in voice mode and backend call was successful) ===
+    if is_voice_mode and st.session_state.elevenlabs_api_key:
+        with st.spinner("Generating audio response..."):
+            try:
+                el_client = ElevenLabs(api_key=st.session_state.elevenlabs_api_key)
+                audio_stream = el_client.text_to_speech.convert(
+                    voice_id=st.session_state.elevenlabs_voice_id,
+                    output_format="mp3_44100_128",
+                    text=ai_response_text, # Use the definitive response text
+                    model_id="eleven_multilingual_v2",
+                )
+                audio_data = b"".join(audio_stream)
+                audio_b64 = base64.b64encode(audio_data).decode("utf-8")
+                
+                # Now, add the audio data to the *last* message in the session state
+                if st.session_state.voice_messages:
+                    st.session_state.voice_messages[-1]['audio_b64'] = audio_b64
+                
+                # Set the audio to be played automatically
+                st.session_state.autoplay_audio_b64 = audio_b64
+            except Exception as e:
+                st.error(f"ElevenLabs audio generation failed: {e}")
+
+    # Rerun the app to display the new messages and potentially play the audio
     st.rerun()
+
 
 # --- Autoplay Audio Logic ---
 if st.session_state.autoplay_audio_b64:
